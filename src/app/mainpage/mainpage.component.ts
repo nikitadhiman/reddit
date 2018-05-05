@@ -17,6 +17,7 @@ export class MainpageComponent implements OnInit {
   atLeastOnce:any = false;
   firstPageData:any = [];
   fullPost:any = [];
+  level1Comments:any = [];
   fullPostObject:any = [];
   fullPageCommentsObject:any = [];
   fullPageCommentsArray:any = [];
@@ -40,7 +41,7 @@ export class MainpageComponent implements OnInit {
 
   buildFirstPageData()
   {
-    for(var i =0; i<this.size;i++)
+    for(var i =0; i<this.size - 1;i++)
     {
       var imageExists = this.firstPage[i].data.preview;
       var rawTime = new Date(this.firstPage[i].data.created);
@@ -110,9 +111,6 @@ export class MainpageComponent implements OnInit {
       'bannerImage':imageExists
 
     }
-
-    console.log(this.fullPostObject);
-    
   }
 
   renderFullPostComments()
@@ -122,14 +120,14 @@ export class MainpageComponent implements OnInit {
     
     for(var i=0;i<parentComments.length;i++)
     {
-      var wholeObject = [];
-      var level1 = [];
+      var wholeObject = {};
+      var level1 = {};
       var parent = {
       'parentCommentTitle' :parentComments[i].data.body,
       'author': parentComments[i].data.author
        }
 
-       wholeObject['parent'] = parent;
+       wholeObject = parent;
 
       if(parentComments[i].data.replies)
       {
@@ -140,31 +138,42 @@ export class MainpageComponent implements OnInit {
         'leveltitle_1' : parentComments[i].data.replies.data.children[j].data.body}
         level1[j] = level_1;
       
-    //   if(parentComments[i].data.replies.data.children[j].data.replies)
-  //{
-    //debugger;
-   //for(var k= 0 ;k<parentComments[i].data.replies.data.children[j].data.replies.data.children.length;k++){
-          //var level_2 = {'levelauthor_2' : parentComments[i].data.replies.data.children[j].data.replies.data.children[k].data.author,
-         //'leveltitle_2' : parentComments[i].data.replies.data.children[j].data.replies.data.children[k].data.title}
-          //level2[k] = level_2;
-         //}
-
-        //level1.push(level2);
-        // }
         }
-        wholeObject.push(level1);
+
+        this.level1Comments.push(level1);
+        //wholeObject.push(level1);
       }
       this.fullPageCommentsArray.push(wholeObject);
     }
-    
-    this.fullPageCommentsObject = this.toObject(this.fullPageCommentsArray);
-    console.log(this.fullPageCommentsObject);
   }
 
   toObject(arr) {
+    var parent = {};
     var rv = {};
+    var wholeReplies = {};
     for (var i = 0; i < arr.length; ++i)
-      rv[i] = arr[i];
+      {parent = arr[i].parent;
+        
+     var newArray =  arr[i][0];
+      rv[i] = this.extend(parent,wholeReplies);
+      }
     return rv;
   }
+
+  toObjectInner(param)
+  {
+    var rv = {};
+    if(param.length)
+  {
+    for (var i = 0; i < param.length; ++i)
+      rv[i] = param[i];
+  }
+    return rv;
+  }
+
+ extend(obj, src) {
+    Object.keys(src).forEach(function(key) { obj[key] = src[key]; });
+    return obj;
+}
+
 }
